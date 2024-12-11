@@ -44,7 +44,7 @@ FL通过对所有客户端的联合训练，获得一个全局模型：
 
 
 
-其中![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps87.jpg)为全局模型的权重，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps88.jpg)为训练第k个客户端模型的损失函数。在服务器端，FL系统聚合所有上传的模型权重。在每一轮通信中，指定K中的客户端来训练和上传参数，其中|K |为要上传的模型数量。
+其中wg为全局模型的权重，Lk为训练第k个客户端模型的损失函数。在服务器端，FL系统聚合所有上传的模型权重。在每一轮通信中，指定K中的客户端来训练和上传参数，其中|K |为要上传的模型数量。
 
 
 
@@ -52,9 +52,9 @@ FL通过对所有客户端的联合训练，获得一个全局模型：
 
 所有类标签分为 **多数类标签**和 **少数类标签**
 
-当![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps89.jpg)>=![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps90.jpg), 类标签y是第k个客户端中的多数标签。![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps91.jpg)是所有类别的样本总数，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps92.jpg)是第k个客户端中类别y的样本数量
+当nk,y>=(nk/nk,y), 类标签y是第k个客户端中的多数标签。nk是所有类别的样本总数，nk,y是第k个客户端中类别y的样本数量
 
-以下，假设第k个客户端上的多数标签都在![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps93.jpg)中
+以下，假设第k个客户端上的多数标签都在yk中
 
 **知识蒸馏**：将一个较大、较复杂的教师模型的知识传递给一个较小、较简单的学生模型。让学生模型的输出尽可能接近教师模型的输出，除了最终的预测结果外，教师模型在中间层和输出层包含的知识（**暗知识**）也可传递给学生模型。
 
@@ -68,7 +68,7 @@ FedLMD中将基于多个客户端模型更新的**全局模型视为教师模型
 
 ![image-20241105201923130](assets\image-20241105201923130.png)
 
-其中![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps94.jpg)为学习大多数标签知识的交叉熵损失，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps95.jpg)为保留所有标签知识的蒸馏损失。在这里，我们将![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps96.jpg)的权值固定为1，并使用时延![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps97.jpg)作为加权因子来控制蒸馏损失。第k个本地模型的输出为![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps98.jpg)，全局模型的输出为![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps99.jpg)，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps100.jpg)是y的独热向量形式。
+其中 LCE 为学习大多数标签知识的交叉熵损失，Lkd为保留所有标签知识的蒸馏损失。在这里，我们将LCE的权值固定为1，并使用时延β作为加权因子来控制蒸馏损失。第k个本地模型的输出为 pk，全局模型的输出为pg，1y 是y的独热向量形式。
 
 **独热向量**：对于一个具有n个类别的分类问题，独热向量是一个长度为n的向量。在这个向量中，只有一个元素为1，其余元素都为0。
 
@@ -82,7 +82,7 @@ o 如果样本属于类别 C，对应的独热向量则是[0,0,1]。
 
 
 
-**对于训练样本（![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps105.jpg)，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps106.jpg)）∈(![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps107.jpg),![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps108.jpg))，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps110.jpg)是样本数据，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps111.jpg)是样本标签，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps109.jpg)中y是（![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps105.jpg)，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps106.jpg))的![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps112.jpg)表示样本标签。**
+**对于训练样本（xi，yi）∈(Xk,Yk)，xi是样本数据，yi 是样本标签，1y 中y是（xi，yi)的yi表示样本标签。**
 
 
 
@@ -110,7 +110,7 @@ o 如果样本属于类别 C，对应的独热向量则是[0,0,1]。
 
 ##### FedLMD知识蒸馏损失存在问题
 
-![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps113.jpg)可以从第k个数据中学习并辅助偏向少数类标签，但它在进行**正则化时没有考虑客户端之间不同的标签分布**，导致次优优化。
+LKD 可以从第k个数据中学习并辅助偏向少数类标签，但它在进行**正则化时没有考虑客户端之间不同的标签分布**，导致次优优化。
 
 不同客户端标签分布差异的体现：
 
@@ -130,8 +130,8 @@ o 在联邦学习环境下，不同客户端的数据是独立的，并且可能
 
 ![image-20241105214353541](./assets/image-20241105214353541.png)
 
-- ![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps114.jpg)：全局模型针对第i类标签的对数几率，![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps115.jpg)是一个温度系数
-- C是类别总数， ![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps116.jpg)是第K个客户端中**多数标签集合**
+- Zg,i：全局模型针对第i类标签的对数几率，π 是一个温度系数
+- C是类别总数， yk 是第K个客户端中**多数标签集合**
 - exp：以自然常数e为底的指数函数，exp(x)表示e的x次幂，e![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps117.jpg)2.71828
 - 对数几率：在将模型的原始输出经过激活函数（如 Softmax 函数）转换为概率之前的值。对于一个分类任务，如果有n个类别，模型的对数几率通常是一个n维向量z=(z1,z2,........,zn)。
 
@@ -143,8 +143,8 @@ o 在联邦学习环境下，不同客户端的数据是独立的，并且可能
 
 ![image-20241105214452680](./assets/image-20241105214452680.png)
 
-- ![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps118.jpg)：客户端模型（学生模型)针对第i类标签的对数几率。
-- i![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps119.jpg)表示i类标签不是目标标签
+- Zk,i：客户端模型（学生模型)针对第i类标签的对数几率。
+- i != y表示i类标签不是目标标签
 
 **目标标签**：在模型训练过程中，与当前输入数据对应的真实标签。例如，在一个图像分类任务中，如果输入一张猫的图片，那么猫这个类别标签就是目标标签。
 
@@ -156,10 +156,35 @@ o 在联邦学习环境下，不同客户端的数据是独立的，并且可能
 
 
 
-![image-20241105215943808](assets\image-20241105215943808.png)
+![image-20241105215943808](./assets/image-20241105215943808.png)
 
 #### (5)无教师模型变体—FedLMD-tf
 
-通过引入固定的少数标签分布来取代教师模型的输出，将**蒸馏**视为**标签平滑（LS）正则化**。具体来说，我们将式7中的![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps120.jpg)替换为![img](file:///C:\Users\86188\AppData\Local\Temp\ksohtml44416\wps121.jpg)：
 
-![image-20241105220427810](assets\image-20241105220427810.png)
+FedLMD 为每个客户端引入了一个额外的模型，这无疑会增加客户端的硬件开销。因此，我们考虑舍弃教师模型以避免成本。蒸馏中的教师模型通常需要预训练，以便它们能够更好地为学生模型提供知识。然而，联邦学习是一种在线学习，即教师模型在初始阶段并没有良好的性能。
+
+通过引入固定的少数标签分布来取代教师模型的输出，将**蒸馏**视为**标签平滑（LS）正则化**。具体来说，我们将式7中的 P'g 替换为u k：
+
+![image-20241105220427810](./assets/image-20241105220427810.png)
+
+第k个客户端的固定少数类标签分布为:
+
+![](./assets/image-20241203101339995.png)
+
+C和Ck分别表示类别标签的总数和第K个客户端的多数类标签的数量。
+
+详细的训练过程：
+
+![](./assets/image-20241203102613368.png)
+
+## 三、实验
+
+使用了四个数据集，MNIST 、CINIC10 、CIFAR - 10 和 CIFAR100 。数据集分别使用两种非独立同分布（Non - IID）划分策略进行切片：1）分片（Sharding）[28]：数据根据标签进行切片，切片后的数据称为一个分片。每个分片具有相同数量的样本，数据异构性的程度由每个客户端拥有的分片数量决定。我们将设置为 MNIST（）、CIFAR - 10（）、CIFAR - 100（）和 CINIC - 10（）。
+
+2）潜在狄利克雷分配（Latent Dirichlet Allocation，LDA）[20]：数据集通过狄利克雷采样进行切片，这为每个客户端提供了不平衡的标签和不平衡的样本。
+
+
+
+不同客户端的数据异构性程度通过控制来确定。我们将设置为 MNIST（）、CIFAR - 10（）、CIFAR - 100（）和 CINIC - 10（）。
+
+
